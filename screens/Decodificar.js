@@ -7,13 +7,13 @@ const Decodificar = () => {
   const [hash, setHash] = useState("");
   const [decode, setDecode] = useState("");
 
-  const handleAtualizacao = async () => {
+  const handleDecodificar = async () => {
     if (!codigo || !hash) {
       Alert.alert("Erro", "Todos os campos são obrigatórios.");
       return;
     }
     try {
-      const response = await axios.put(
+      const response = await axios.post(
         `http://10.68.153.202:3000/decodificar`,
         {
           codigo,
@@ -35,19 +35,23 @@ const Decodificar = () => {
       <TextInput
         style={styles.input}
         placeholder="Código"
+        value={codigo}
       />
       <TextInput
         style={styles.input}
         placeholder="Hash"
+        value={hash}
       />
       <Button
         style={styles.button}
         title="Decodificar"
+        onPress={handleDecodificar}
       />
       <TextInput
         style={styles.input}
         placeholder="Decodificação"
         editable={false}
+        value={decode}
       />
     </View>
   );

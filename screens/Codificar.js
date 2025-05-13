@@ -7,7 +7,7 @@ const Codificar = () => {
   const navigation = useNavigation();
   const [mensagem, setMensagem] = useState("");
   const [passo, setPasso] = useState("");
-  const [status, setStatus] = useState("");
+  const [codigo, setCodigo] = useState("");
   const [hash, setHash] = useState("");
 
   const handleCodificar = async () => {
@@ -28,15 +28,17 @@ const Codificar = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Cadastro de Tarefa</Text>
+      <Text style={styles.title}>Codificar</Text>
       <TextInput
         style={styles.input}
         placeholder="Código"
+        value={mensagem}
       />
       <TextInput
         style={styles.input}
         placeholder="Passo"
         keyboardType="numeric"
+        value={passo}
       />
 
       <Button 
@@ -49,12 +51,14 @@ const Codificar = () => {
         style={styles.input}
         editable={false}
         placeholder="Código Codificado"
+        value={codigo}
       />
 
       <TextInput
         style={styles.input}
         editable={false}
         placeholder="Código Hash"
+        value={hash}
       />
 
       <Button 
