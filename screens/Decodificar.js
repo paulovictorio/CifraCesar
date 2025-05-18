@@ -21,8 +21,10 @@ const Decodificar = () => {
         }
       );
       console.log(response.data);
+      setDecode(codigo + " " + hash);//teste
       setCodigo("");
       setHash("");
+      Alert.alert("Sucesso", "Mensagem decriptografada com sucesso!")
     } catch (err) {
       console.error("Erro decodificar:", err);
       Alert.alert("Erro", "Falha ao decodificar.");
@@ -36,11 +38,13 @@ const Decodificar = () => {
         style={styles.input}
         placeholder="Código"
         value={codigo}
+        onChangeText={setCodigo}
       />
       <TextInput
         style={styles.input}
         placeholder="Hash"
         value={hash}
+        onChangeText={setHash}
       />
       <Button
         style={styles.button}

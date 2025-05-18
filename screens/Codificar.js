@@ -12,14 +12,21 @@ const Codificar = () => {
 
   const handleCodificar = async () => {
     try {
-      const response = await axios.post("http://10.68.153.202:3000/codificar", {
+      if(!mensagem || !passo){
+        Alert.alert("Erro", "Todos os campos são obrigatórios.");
+      }else{
+        const response = await axios.post("http://10.68.153.202:3000/codificar", {
         mensagem,
         passo,
-      });
-      console.log(response.data);
-      setMensagem("");
-      setPasso("");
-      Alert.alert("Sucesso", "Mensagem criptografada com sucesso!");
+        });
+        console.log(response.data);
+        
+        setCodigo(mensagem);//teste
+        setHash(passo);//teste
+        setMensagem("");
+        setPasso("");
+        Alert.alert("Sucesso", "Mensagem criptografada com sucesso!");
+      }
     } catch (err) {
       console.error("Erro ao codificar dados:", err);
       Alert.alert("Erro", "Falha codificar dados.");
@@ -33,12 +40,14 @@ const Codificar = () => {
         style={styles.input}
         placeholder="Código"
         value={mensagem}
+        onChangeText={setMensagem}
       />
       <TextInput
         style={styles.input}
         placeholder="Passo"
         keyboardType="numeric"
         value={passo}
+        onChangeText={setPasso}
       />
 
       <Button 
