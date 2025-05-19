@@ -1,7 +1,8 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert,  } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Codificar = () => {
   const navigation = useNavigation();
@@ -9,27 +10,67 @@ const Codificar = () => {
   const [passo, setPasso] = useState("");
   const [codigo, setCodigo] = useState("");
   const [hash, setHash] = useState("");
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem("userToken");
+        if (userToken) {
+          setToken(userToken);
+        } else {
+          alert("Sessão expirada", "Por favor, faça login novamente.");
+          navigation.navigate("Home");
+        }
+      } catch (error) {
+        console.error("Erro ao recuperar o token:", error);
+      }
+    };
+
+    getToken();
+  }, []);
 
   const handleCodificar = async () => {
     try {
-      if(!mensagem || !passo){
-        Alert.alert("Erro", "Todos os campos são obrigatórios.");
-      }else{
-        const response = await axios.post("http://10.68.153.202:3000/codificar", {
-        mensagem,
-        passo,
-        });
-        console.log(response.data);
-        
-        setCodigo(mensagem);//teste
-        setHash(passo);//teste
+      if (!mensagem || !passo) {
+        alert("Erro", "Todos os campos são obrigatórios.");
+      } else if (!token) {
+        alert(
+          "Erro de Autenticação",
+          "Você precisa estar logado para realizar esta ação."
+        );
+        navigation.navigate("Home");
+      } else {
+        const response = await axios.post(
+          "http://127.0.0.1:5000/encrypt",
+          {
+            message: mensagem,
+            step: Number(passo),
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setCodigo(response.data.encrypted_message);
+        setHash(response.data.step_hash);
         setMensagem("");
         setPasso("");
-        Alert.alert("Sucesso", "Mensagem criptografada com sucesso!");
+        alert("Sucesso", "Mensagem criptografada com sucesso!");
       }
     } catch (err) {
       console.error("Erro ao codificar dados:", err);
-      Alert.alert("Erro", "Falha codificar dados.");
+      if (err.response && err.response.status === 401) {
+        alert(
+          "Erro de Autenticação",
+          "Sua sessão expirou. Por favor, faça login novamente."
+        );
+        navigation.navigate("Home");
+      } else {
+        alert("Erro", "Falha ao codificar dados.");
+      }
     }
   };
 
@@ -50,10 +91,10 @@ const Codificar = () => {
         onChangeText={setPasso}
       />
 
-      <Button 
-        title="Codificar" 
+      <Button
+        title="Codificar"
         style={styles.button}
-        onPress={handleCodificar} 
+        onPress={handleCodificar}
       />
 
       <TextInput
@@ -70,12 +111,11 @@ const Codificar = () => {
         value={hash}
       />
 
-      <Button 
-        title="Decodificar" 
-        style={styles.button} 
-        onPress={() => navigation.navigate("Decodificar")} 
+      <Button
+        title="Decodificar"
+        style={styles.button}
+        onPress={() => navigation.navigate("Decodificar")}
       />
-      
     </View>
   );
 };
@@ -104,7 +144,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: "#fff",
     fontSize: 16,
-    marginTop: 20
+    marginTop: 20,
   },
   button: {
     marginTop: 20,

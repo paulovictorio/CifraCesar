@@ -1,33 +1,77 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
 import axios from "axios";
+import { useNavigation } from "@react-navigation/native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Decodificar = () => {
+  const navigation = useNavigation();
   const [codigo, setCodigo] = useState("");
   const [hash, setHash] = useState("");
   const [decode, setDecode] = useState("");
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const userToken = await AsyncStorage.getItem("userToken");
+        if (userToken) {
+          setToken(userToken);
+        } else {
+          alert("Sessão expirada", "Por favor, faça login novamente.");
+          navigation.navigate("Home");
+        }
+      } catch (error) {
+        console.error("Erro ao recuperar o token:", error);
+      }
+    };
+
+    getToken();
+  }, []);
 
   const handleDecodificar = async () => {
     if (!codigo || !hash) {
-      Alert.alert("Erro", "Todos os campos são obrigatórios.");
+      alert("Erro", "Todos os campos são obrigatórios.");
       return;
     }
+    if (!token) {
+      alert(
+        "Erro de Autenticação",
+        "Você precisa estar logado para realizar esta ação."
+      );
+      navigation.navigate("Home");
+      return;
+    }
+
     try {
       const response = await axios.post(
-        `http://10.68.153.202:3000/decodificar`,
+        "http://127.0.0.1:5000/decrypt",
         {
-          codigo,
-          hash,
+          message: codigo,
+          step_hash: hash,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      console.log(response.data);
-      setDecode(codigo + " " + hash);//teste
+
+      setDecode(response.data.decrypted_message);
       setCodigo("");
       setHash("");
-      Alert.alert("Sucesso", "Mensagem decriptografada com sucesso!")
+      alert("Sucesso", "Mensagem descriptografada com sucesso!");
     } catch (err) {
-      console.error("Erro decodificar:", err);
-      Alert.alert("Erro", "Falha ao decodificar.");
+      console.error("Erro ao decodificar:", err);
+      if (err.response && err.response.status === 401) {
+        alert(
+          "Erro de Autenticação",
+          "Sua sessão expirou. Por favor, faça login novamente."
+        );
+        navigation.navigate("Home");
+      } else {
+        alert("Erro", "Falha ao decodificar.");
+      }
     }
   };
 
@@ -86,7 +130,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     backgroundColor: "#fff",
     fontSize: 16,
-    marginTop: 20
+    marginTop: 20,
   },
   button: {
     marginTop: 20,

@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Decodificar from "./screens/Decodificar";
 import HomeScreen from "./screens/HomeScreen";
 import Codificar from "./screens/Codificar";
+import RegisterScreen from "./screens/RegisterScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -15,6 +16,11 @@ const App = () => {
           name="Home"
           component={HomeScreen}
           options={{ title: "Login" }}
+        />
+        <Stack.Screen
+          name="Register"
+          component={RegisterScreen}
+          options={{ title: "Criar Conta" }}
         />
         <Stack.Screen name="Decodificar" component={Decodificar} />
         <Stack.Screen name="Codificar" component={Codificar} />
