@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import axios from "axios";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -69,6 +69,8 @@ const Decodificar = () => {
           "Sua sessão expirou. Por favor, faça login novamente."
         );
         navigation.navigate("Home");
+      } else if (err.response && err.response.status === 403) {
+        alert("Hash Inválido", "Este hash já foi utilizado ou não é válido.");
       } else {
         alert("Erro", "Falha ao decodificar.");
       }

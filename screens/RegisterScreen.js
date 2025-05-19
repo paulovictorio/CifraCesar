@@ -37,7 +37,7 @@ const RegisterScreen = () => {
         password,
       });
 
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 201) {
         alert(
           "Sucesso",
           "Registro realizado com sucesso! Faça login para continuar.",
